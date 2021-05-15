@@ -1011,7 +1011,7 @@ Dusting and polishing all common skirting boards, windows, window frames, doors,
 
           <div class="col-lg-8 mt-5 mt-lg-0" data-aos="fade-left" data-aos-delay="200">
 
-            <form action="forms/contact.php" method="GET" role="form" class="php-email-form">
+            <form action="forms/contact.php" method="POST" role="form" class="php-email-form">
               <div class="form-row">
                 <div class="col-md-6 form-group">
                   <input type="text" name="name" class="form-control" id="name" placeholder="Your Name" data-rule="minlen:4" data-msg="Please enter at least 4 chars" />
