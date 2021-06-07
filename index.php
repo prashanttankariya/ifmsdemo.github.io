@@ -1,3 +1,38 @@
+<?php
+
+        //when contact from submit
+        
+    //get the contact inputs
+    if (isset($_POST['cnt_submit'])) {
+
+        //get inputs
+        $name       =       $_POST['name'];
+        $email      =       $_POST['email'];
+        $message    =       $_POST['message'];
+
+
+        $to         = "contact@ifmsindia.in";
+        $subject    = "Contact from IFMS web.";
+        $headers    = "From:".$email . "\r\n";
+        //echo $name.$email.$message;
+
+
+        $sendmail = mail($to,$subject,$message,$headers);
+
+        if($sendmail){
+                
+                echo "<script>alert('Thanks for contact. We will connect with you in short time.')</script>";
+        }
+        else{
+
+                echo "Mail error.";
+        }
+    }
+
+
+
+?>
+
 <!doctype html>
 <html lang="en">
 
@@ -581,7 +616,7 @@
                 </div>
                 <div class="col-lg-6">
                     <div class="contact-form form-style-one mt-35 wow fadeIn" data-wow-duration="1.5s" data-wow-delay="0.5s">
-                        <form  id="contact-form" action="assets/contact.php" method="post">
+                        <form  id="contact-form" action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post">
                             <div class="form-input mt-15">
                                 <label>Name</label>
                                 <div class="input-items default">
@@ -605,7 +640,7 @@
                             </div> <!-- form input -->
                             <p class="form-message"></p>
                             <div class="form-input rounded-buttons mt-20">
-                                <button type="submit" class="main-btn rounded-three">Submit</button>
+                                <button type="submit" name="cnt_submit" class="main-btn rounded-three">Submit</button>
                             </div> <!-- form input -->
                         </form>
                     </div> <!-- contact form -->
@@ -632,7 +667,7 @@
             <div class="row">
                 <div class="col-lg-6 offset-md-3">
                     <div class="contact-form form-style-one mt-35 wow fadeIn" data-wow-duration="1.5s" data-wow-delay="0.5s">
-                        <form  id="work-with-us-form" action="assets/work-with-us-form.php" method="post">
+                        <form  id="work-with-us-form" action="<?php echo $_SERVER['PHP_SELF'] ?>" method="post" enctype="multipart/form-data">
                             <div class="form-input mt-15">
                                 <label>Name</label>
                                 <div class="input-items default">
@@ -643,14 +678,14 @@
                             <div class="form-input mt-15">
                                 <label>Mobile No.</label>
                                 <div class="input-items default">
-                                    <input type="mobile" placeholder="Mobile No." name="mobile" required>
+                                    <input type="text" placeholder="Mobile No." name="mobile" required>
                                     <i class="lni-mobile"></i>
                                 </div>
                             </div> <!-- form input -->
                             <div class="form-input mt-15">
                                 <label>Position applied for</label>
                                 <div class="input-items default">
-                                    <input type="mobile" placeholder="Post applied for" name="mobile" required>
+                                    <input type="text" placeholder="Post applied for" name="position" required>
                                     <i class="lni-user"></i>
                                 </div>
                             </div> <!-- form input -->
@@ -664,7 +699,7 @@
                             </div> <!-- form input -->
                             <p class="form-message"></p>
                             <div class="form-input rounded-buttons mt-20">
-                                <button type="submit" class="main-btn rounded-three">Upload</button>
+                                <button type="submit" name="upload" class="main-btn rounded-three">Upload</button>
                             </div> <!-- form input -->
                         </form>
                     </div> <!-- contact form -->
@@ -795,3 +830,83 @@
 </body>
 
 </html>
+
+<?php
+
+//get the attached file and continue
+if(isset($_POST['upload'])){
+
+    if (isset($_FILES) && (bool) $_FILES) {
+
+        $allowedExtensions = array("pdf", "doc", "docx");
+    
+        $files = array();
+        foreach ($_FILES as $name => $file) {
+            $file_name = $file['name'];
+            $temp_name = $file['tmp_name'];
+            $file_type = $file['type'];
+            $path_parts = pathinfo($file_name);
+            $ext = $path_parts['extension'];
+            if (!in_array($ext, $allowedExtensions)) {
+                // die("File $file_name has the extensions $ext which is not allowed");
+                echo "<script>alert('Only PDF, DOC , DOCX file allowed.')</script>";
+            }
+            array_push($files, $file);
+        }
+        
+        $semi_rand = md5(time());
+        $mime_boundary = "==Multipart_Boundary_x{$semi_rand}x";
+    
+    
+        $headers .= "\nMIME-Version: 1.0\n" . "Content-Type: multipart/mixed;\n" . " boundary=\"{$mime_boundary}\"";
+        $message = "This is a multi-part message in MIME format.\n\n" . "--{$mime_boundary}\n" . "Content-Type: text/plain; charset=\"iso-8859-1\"\n" . "Content-Transfer-Encoding: 7bit\n\n" . $message . "\n\n";
+        $message .= "--{$mime_boundary}\n";
+    
+        // preparing attachments
+        for ($x = 0; $x < count($files); $x++) {
+            $file = fopen($files[$x]['tmp_name'], "rb");
+            $data = fread($file, filesize($files[$x]['tmp_name']));
+            fclose($file);
+            $data = chunk_split(base64_encode($data));
+            $name = $files[$x]['name'];
+            $message .= "Content-Type: {\"application/octet-stream\"};\n" . " name=\"$name\"\n" .
+                    "Content-Disposition: attachment;\n" . " filename=\"$name\"\n" .
+                    "Content-Transfer-Encoding: base64\n\n" . $data . "\n\n";
+            $message .= "--{$mime_boundary}\n";
+
+            //$actualMsg = "Name : ".$name."\n Contact : ".$mobile."\n applied For : ".$position."\n".$message;
+            
+        }
+    
+
+        
+
+        // send
+        $to = 'leedonniee@gmail.com';
+        $subject = "Post applied from the IFMS web.";
+        $cndname  = $_POST['name'];
+        $cndmobile  = $_POST['mobile'];
+        $cndposition  = $_POST['position'];
+        $senderMail   = "leedonniee@gmail.com";
+
+        $from = "leedonniee@gmail.com"; 
+        $headers = "From: $from";
+
+        //$content = "By : ".$cndname."\n Mobile : ".$cndmobile."\n Position : ".$cndposition."\n Resume or CV :".$message;
+        $content = $message;
+        $ok = mail($to, $subject, $message, $headers);
+        // $wo = mail($to, $subject, $content ,$headers);
+    if ($ok) {
+        // echo "<p style='tex-align:center'>mail sent to $to!</p>";
+        echo "<script>alert('We have received your information. We will contact you soon.')</script>";
+    } else {
+        echo "<p>mail could not be sent!</p>";
+    }
+}
+
+
+}//main if ends
+
+
+?>
+
