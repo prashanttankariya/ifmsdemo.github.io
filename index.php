@@ -10,7 +10,6 @@
         $email      =       $_POST['email'];
         $message    =       $_POST['message'];
 
-
         $to         = "contact@ifmsindia.in";
         $subject    = "Contact from IFMS web.";
         $headers    = "From:".$email . "\r\n";
